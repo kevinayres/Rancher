@@ -14,19 +14,25 @@
 
 * Create an NLB: https://rancher.com/docs/rancher/v2.x/en/installation/resources/advanced/helm2/create-nodes-lb/nlb/
 
+## Prepare the nodes
+* All nodes must have sshd_config configured with “AllowTcpForwarding yes”
+** Restart sshd after making the change
+* Make sure the primary user account on the nodes (which will be specified in the cluster.yml file) is in the docker group
+* The ssh key from the user and node that will run "rke up" need to be in the authorized_keys file
 
 ## Create and configure the RKE cluster.yml file:
 
 * Fairly simple overview of creating the cluster: https://rancher.com/docs/rancher/v2.x/en/installation/resources/k8s-tutorials/ha-rke/
 * Basic cluster.yaml file. Useful to show how to turn on basic etcd snapshots: https://rancher.com/docs/rancher/v2.x/en/installation/resources/advanced/helm2/kubernetes-rke/
 ** Better to run `rke config` and go through the steps
-*** Later have to add the NLB URL to network.authentication.sans: [rancher.mycompany.com]
-*** Note: Setting the "cloud_provider.name" field to AWS suppressed the K8s hostnames and inserted the AWS hostnames
+*** Later have to add the NLB URL to network.authentication.sans: [rancher.mycompany.com] to have it included in the Let's Encrypt certificate
+**** After "rke up", set the clusters.cluster.server in the kube_config_cluster.yml file to the same name to access the K8s API through the NLP
+*** Note: Setting the "cloud_provider.name" field to AWS suppressed the K8s hostnames (hostname_override in the cluster.yml file) and inserted the AWS hostnames
 
 //// A very interesting quickstart guide using TF: https://rancher.com/docs/rancher/v2.x/en/quick-start-guide/deployment/amazon-aws-qs/ ////
 
 ## Install Rancher:
 
-* Overview: https://rancher.com/docs/rke/latest/en/config-options/cloud-providers/aws/#tagging-aws-resources
+* Overview: https://rancher.com/docs/rancher/v2.x/en/installation/install-rancher-on-k8s/ 
 ** Used Let's Encrypt and it works well
 
