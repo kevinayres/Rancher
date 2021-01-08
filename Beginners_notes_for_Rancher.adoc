@@ -48,3 +48,30 @@ IMPORTANT: When creating secrets through Rancher UI, do not base64 encode the ad
 ** Can be verified with `nmap -Pn <LB IP>`
 *** Seems like the public ports allocated show as open
 
+== Rancher Server
+* Can use a single authentication service for all clusters
+** Don't need each engineer to get a Google account, just to be able to have enterprise class access to clusters in GKE
+* Will Chan says just sell Rancher support, nothing else. Everything else is add-on value.
+* Hosted Rancher service runs on AWS for customers who want the control-plane to be 100% managed. 
+** 99.9% uptime SLA for control plane
+** Add-on to Platinum subscription
+* Submariner connects overlay networks from various clusters
+* Fleet - "GitOps at scale" create a pipeline that runs when a git repo changes and push it up to millions of K3s clusters.
+
+== RKE vs. K3s vs. Skuba
+* RKE: 
+** Deploys from a single yaml file called cluster.yml
+*** Create the file by downloading the rke binary from github, then running `rke config`
+*** When the cluster.yml file is ready, install with `rke up` (likely need to be in the same directory)
+*** kube_config_cluster.yml file is the kubeconfig file for the cluster
+** Can be updated and re-applied to a running cluster
+** Can generate Let's Encrypt certificates
+** Saves etcd backups locally and on S3-compatible
+** Upgrading is done by downloading a newer version of the RKE binary from github, then `rke up`
+*** Can modify the order and method for upgrading the nodes
+
+* K3s:
+** Deploy with `curl -sfL https://get.k3s.io | sh -`
+** /etc/rancher/k3s/k3s.yml is the kubeconfig file
+
+ 

@@ -1,0 +1,32 @@
+## Setting up the VPC and supporting resources
+* May need AWS API credentials
+* VPC must have external Internet access
+* All configured nodes must have a public IP address
+* Create two IAM policies: control-plane, etcd-worker: https://rancher.com/docs/rke/latest/en/config-options/cloud-providers/aws/#iam-requirements
+* Create a role and attach the policies
+* Create the nodes according to the "RKE Install Requirements": https://rancher.com/docs/rancher/v2.x/en/installation/requirements/#hardware-requirements
+* Attach the IAM to the nodes
+* Tag the resources: https://rancher.com/docs/rke/latest/en/config-options/cloud-providers/aws/#tagging-aws-resources
+** Tag the VPC, subnet, and security group as "shared"
+* Create a Security Group based on: https://rancher.com/docs/rancher/v2.x/en/installation/requirements/ports/
+** Alternately, can deploy a docker container Rancher server, enter the API credentials and deploy a single node RKE cluster in EC2
+*** Can later destroy the RKE cluster and the node with the Rancher server, but preserve the Security Group
+
+* Create an NLB: https://rancher.com/docs/rancher/v2.x/en/installation/resources/advanced/helm2/create-nodes-lb/nlb/
+
+
+## Create and configure the RKE cluster.yml file:
+
+* Fairly simple overview of creating the cluster: https://rancher.com/docs/rancher/v2.x/en/installation/resources/k8s-tutorials/ha-rke/
+* Basic cluster.yaml file. Useful to show how to turn on basic etcd snapshots: https://rancher.com/docs/rancher/v2.x/en/installation/resources/advanced/helm2/kubernetes-rke/
+** Better to run `rke config` and go through the steps
+*** Later have to add the NLB URL to network.authentication.sans: [rancher.mycompany.com]
+*** Note: Setting the "cloud_provider.name" field to AWS suppressed the K8s hostnames and inserted the AWS hostnames
+
+//// A very interesting quickstart guide using TF: https://rancher.com/docs/rancher/v2.x/en/quick-start-guide/deployment/amazon-aws-qs/ ////
+
+## Install Rancher:
+
+* Overview: https://rancher.com/docs/rke/latest/en/config-options/cloud-providers/aws/#tagging-aws-resources
+** Used Let's Encrypt and it works well
+
