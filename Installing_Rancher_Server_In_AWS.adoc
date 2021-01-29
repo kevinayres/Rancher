@@ -1,5 +1,5 @@
 ## Setting up the VPC and supporting resources
-* Depending on the options chosen for the deployment, you may need the AWS API access key and secret key for the AWS account used for the deployment
+* Depending on the options chosen for the deployment, there may be the need for the AWS API access key and secret key for the AWS account used for the deployment
 * Deploy three instances based on the following considerations:
 ** Identify the required instancy type according to CPU and RAM capacity guidance in the "RKE Install Requirements" tab of https://rancher.com/docs/rancher/v2.x/en/installation/requirements/#hardware-requirements
 ** The Rancher server must be accessible from the Internet, thus the VPC to be used must have a configured Internet Gateway and all RKE nodes must have a publicly routable IP address
@@ -17,8 +17,8 @@ NOTE: This design maintains all three RKE roles (control-plane, etcd, and worker
 * Attach the IAM role to the nodes
 * Tag the resources: https://rancher.com/docs/rke/latest/en/config-options/cloud-providers/aws/#tagging-aws-resources
 ** Tag the VPC, subnet, and security group as "shared"
-* Create a Security Group based on: https://rancher.com/docs/rancher/v2.x/en/installation/requirements/ports/
-** Alternately, can deploy a docker container Rancher server, enter the API credentials and deploy a single node RKE cluster in EC2
+* Create a security group based on: https://rancher.com/docs/rancher/v2.x/en/installation/requirements/ports/
+** The exact security group settings can be difficult to get right. An alternative is to deploy a docker container Rancher server, enter the API credentials and deploy a single node RKE cluster in EC2
 *** Can later destroy the RKE cluster and the node with the Rancher server, but preserve the Security Group
 
 * Create an NLB: https://rancher.com/docs/rancher/v2.x/en/installation/resources/advanced/helm2/create-nodes-lb/nlb/

@@ -1,0 +1,18 @@
+## K3AI
+* Command line tool that takes in a specification and deploys a K8s cluster
+* Further invocations can add AI frameworks and tools to the deployed cluster
+** Runs on Windows, Mac, Linux and limited ARM support
+** Not sure if it can just deploy AI to existing cluster
+** Not sure if you can deploy the cluster and specific AI tools at the same time
+** As of 01/2021 can deploy:
+*** Rancher K3s to pre-provisioned nodes
+*** Rancher K3d to a docker enabled host
+*** Mirantis K0s (have no idea how it works)
+*** KinD to a docker enabled host
+*** A "remote" cluster
+
+## K3s
+* Server install command that sets the permissions correctly for the KUBECONFIG file: `curl -sfL https://get.k3s.io | K3S_KUBECONFIG_MODE=644 sh -s -`
+* Agent install command (K3S_URL sets the node to worker mode): `curl -sfL https://get.k3s.io | K3S_URL=https://<FQDN of server>:6443 K3S_TOKEN=<token> sh -`
+** The token is found on the Agent node in `/var/lib/rancher/k3s/server/node-token`
+** Likely need to provide LB address for the FQDN of the server for HA
