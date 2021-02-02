@@ -16,3 +16,27 @@
 * Agent install command (K3S_URL sets the node to worker mode): `curl -sfL https://get.k3s.io | K3S_URL=https://<FQDN of server>:6443 K3S_TOKEN=<token> sh -`
 ** The token is found on the Agent node in `/var/lib/rancher/k3s/server/node-token`
 ** Likely need to provide LB address for the FQDN of the server for HA
+
+.k3sup
+* Had tons of trouble creating a cluster manually. K3sup worked well
+
+.Create the custer with the first server(master) node:
+----
+k3sup install --ip=10.110.2.0 --tls-san=10.110.2.10 --cluster --k3s-channel=stable --merge --local-path=$HOME/.kube/config --context=ha-k3ai
+----
+* Equals signs are optional
+* --ip is the server to be installed
+* --tls-san ensures the VIP (currently presented by keepalived) is included in the TLS cert
+* --cluster tells the first server node set etcd up in cluster mode
+* --merge merges the new cluster context (ha-k3ai in this case) with the existing one in ~/.kube/config
+** Note that the KUBECONFIG file won't materialize if there is no file at that location or it can't be parsed correctly
+.Adding the each additional server(master) node:
+----
+k3sup join --ip 10.110.2.1 --server --server-ip 10.110.2.10 --k3s-channel stable
+----
+* --ip is the server to be installed
+* --server-ip is the VIP for the K3s API server
+.Adding each agent(worker) node:
+----
+k3sup join --ip 10.110.3.0 --server-ip 10.110.2.10 --k3s-channel stable
+----
