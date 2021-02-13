@@ -2,7 +2,7 @@
 * Command line tool that takes in a specification and deploys a K8s cluster
 * Further invocations can add AI frameworks and tools to the deployed cluster
 ** Runs on Windows, Mac, Linux and limited ARM support
-** Not sure if it can just deploy AI to existing cluster
+** Can deploy AI to existing cluster
 ** Not sure if you can deploy the cluster and specific AI tools at the same time
 ** As of 01/2021 can deploy:
 *** Rancher K3s to pre-provisioned nodes
@@ -17,16 +17,25 @@
 ** The token is found on the Agent node in `/var/lib/rancher/k3s/server/node-token`
 ** Likely need to provide LB address for the FQDN of the server for HA
 
-.k3sup
+## k3sup
 * Had tons of trouble creating a cluster manually. K3sup worked well
 
-.Create the custer with the first server(master) node:
+* Download and install with:
 ----
-k3sup install --ip=10.110.2.0 --tls-san=10.110.2.10 --cluster --k3s-channel=stable --merge --local-path=$HOME/.kube/config --context=ha-k3ai
+curl -sLS https://get.k3sup.dev | sh
+sudo install k3sup /usr/local/bin/
+----
+
+.Create the custer with the first server(master) node:
+
+----
+k3sup install --ip=10.110.2.0 --tls-san=10.110.2.10 --sudo --user sles --cluster --k3s-channel=stable --merge --local-path=$HOME/.kube/config --context=ha-k3ai
 ----
 * Equals signs are optional
 * --ip is the server to be installed
 * --tls-san ensures the VIP (currently presented by keepalived) is included in the TLS cert
+* --sudo means to use sudo for the installation since the SSH user won't be root
+* --user is the SSH user account to use on the target system
 * --cluster tells the first server node set etcd up in cluster mode
 * --merge merges the new cluster context (ha-k3ai in this case) with the existing one in ~/.kube/config
 ** Note that the KUBECONFIG file won't materialize if there is no file at that location or it can't be parsed correctly
@@ -38,5 +47,10 @@ k3sup join --ip 10.110.2.1 --server --server-ip 10.110.2.10 --k3s-channel stable
 * --server-ip is the VIP for the K3s API server
 .Adding each agent(worker) node:
 ----
-k3sup join --ip 10.110.3.0 --server-ip 10.110.2.10 --k3s-channel stable
+k3sup join --ip 10.110.3.0 --server-ip 10.110.2.10  --sudo --user sles --k3s-channel stable
 ----
+
+.Outstanding issues: 
+* Traefik deployed with the load balancer IP as the first server's primary IP
+* Possible solution is to deploy K3s first, with Traefik disabled, then install Traefikv2 with the IP configured in the Helm chart values.yaml file, or with a --values option.
+* Another option is to create the cluster on the first server node, but reference the LB IP as the destination. Unknown if that will break something else.
