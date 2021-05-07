@@ -16,6 +16,56 @@
 * Agent install command (K3S_URL sets the node to worker mode): `curl -sfL https://get.k3s.io | K3S_URL=https://<FQDN of server>:6443 K3S_TOKEN=<token> sh -`
 ** The token is found on the Agent node in `/var/lib/rancher/k3s/server/node-token`
 ** Likely need to provide LB address for the FQDN of the server for HA
+*** Though, not if all external to API server access will go through Rancher server
+
+.Clean way of deploying HA K3s with embedded etcd:
+
+* Deploy K3s with --cluster-init to enable embedded etcd:
+----
+K3s_VERSION=""      #I.e. "v1.20.4+k3s1"
+curl -sfL https://get.k3s.io | INSTALL_K3S_VERSION=${K3s_VERSION} INSTALL_K3S_EXEC='server --cluster-init --write-kubeconfig-mode=644' sh -s -
+----
+
+* Install additional servers:
+----
+FIRST_SERVER_IP=""      # Private IP preferred, if available
+NODE_TOKEN=""           # From the /var/lib/rancher/k3s/server/node-token file on the first server
+K3s_VERSION=""          # Match the first of the first server
+----
+----
+curl -sfL https://get.k3s.io | INSTALL_K3S_VERSION=${K3s_VERSION} K3S_URL=https://${FIRST_SERVER_IP}:6443 K3S_TOKEN=${NODE_TOKEN} K3S_KUBECONFIG_MODE="644" INSTALL_K3S_EXEC='server' sh -
+
+* Install additional agents:
+----
+FIRST_SERVER_IP=""      # Private IP preferred, if available
+NODE_TOKEN=""           # From the /var/lib/rancher/k3s/server/node-token file on the first server
+K3s_VERSION=""          # Match the first of the first server
+----
+----
+curl -sfL https://get.k3s.io | INSTALL_K3S_VERSION=${K3s_VERSION} K3S_URL=https://${FIRST_SERVER_IP}:6443 K3S_TOKEN=${NODE_TOKEN} K3S_KUBECONFIG_MODE="644" sh -
+
+
+.A proven method of creating an HA K3s cluster: 
+* Deploy K3s with --cluster-init to enable embedded etcd:
+----
+wget https://github.com/k3s-io/k3s/releases/download/v1.20.4%2Bk3s1/k3s
+sudo mv k3s /usr/local/bin/
+sudo chmod 755 /usr/local/bin/k3s
+curl -sfL https://get.k3s.io > install.sh
+chmod 755 install.sh
+INSTALL_K3S_SKIP_DOWNLOAD=true INSTALL_K3S_EXEC='server --cluster-init --write-kubeconfig-mode=644'  ./install.sh
+----
+
+* Add another server to the cluster
+----
+wget https://github.com/k3s-io/k3s/releases/download/v1.20.4%2Bk3s1/k3s
+sudo mv k3s /usr/local/bin/
+sudo chmod 755 /usr/local/bin/k3s
+curl -sfL https://get.k3s.io > install.sh
+chmod 755 install.sh
+FIRST_SERVER_IP=""
+sudo K3S_TOKEN=<from the /var/lib/rancher/k3s/server/node-token file on the first server> INSTALL_K3S_SKIP_DOWNLOAD=true INSTALL_K3S_EXEC='server --server https://${FIRST_SERVER_IP}:6443 --write-kubeconfig-mode=644'  ./install.sh
+----
 
 ## k3sup
 * Had tons of trouble creating a cluster manually. K3sup worked well
@@ -51,6 +101,3 @@ k3sup join --ip 10.110.3.0 --server-ip 10.110.2.10  --sudo --user sles --k3s-cha
 ----
 
 .Outstanding issues: 
-* Traefik deployed with the load balancer IP as the first server's primary IP
-* Possible solution is to deploy K3s first, with Traefik disabled, then install Traefikv2 with the IP configured in the Helm chart values.yaml file, or with a --values option.
-* Another option is to create the cluster on the first server node, but reference the LB IP as the destination. Unknown if that will break something else.
