@@ -1,0 +1,55 @@
+## Installing on SLEMicro
+
+.RKE2 installation places kubectl in /var/lib/rancher/rke2/bin/
+* Can't create symlinks into /usr/
+* Best just to add it to the root user's path (along with /opt/rke2/bin for the uninstall and kill scripts):
+----
+echo "PATH=${PATH}:/opt/rke2/bin:/var/lib/rancher/rke2/bin/" >> ~/.bashrc && source  ~/.bashrc
+----
+
+.Installation options: https://docs.rke2.io/install/install_options/install_options/
+
+.Releases page: https://github.com/rancher/rke2/releases
+
+.Supported RKE2 versions for running Rancher: https://rancher.com/support-maintenance-terms/all-supported-versions/
+
+* Take note of the syntax of the RKE version, i.e. "vX.YY.Z+rke2r1"
+
+* Install a single node: 
+----
+curl -sfL https://get.rke2.io | INSTALL_RKE2_VERSION="v1.20.6+rke2r1" sh -
+----
+
+* On MicroOS, the following gets installed into /opt/rke2/bin:
+** rke2  
+** rke2-killall.sh  
+** rke2-uninstall.sh
+
+.There doesn't seem to be a reference for the config.yaml file
+* Just says "The configuration file parameters map directly to CLI arguments, with repeatable CLI arguments being represented as YAML lists.
+* I.e.
+----
+rke2 server \
+  --write-kubeconfig-mode "0644"    \
+  --tls-san "foo.local"             \
+  --node-label "foo=bar"            \
+  --node-label "something=amazing"
+----
+* Is the same as:
+----
+write-kubeconfig-mode: "0644"
+tls-san:
+  - "foo.local"
+node-label:
+  - "foo=bar"
+  - "something=amazing"
+----
+* Not sure if some parameters are required to be lists, such as tls-san (but it seems like that's the case)
+* All server installation parameters are at: https://docs.rke2.io/install/install_options/server_config/
+* All agent installation parameters are at: https://docs.rke2.io/install/install_options/agent_config/
+
+.Seems like the order of installation is:
+1. Download the script with the appropriate version
+2. Update the /etc/rancher/rke2/config.yaml file
+3. systemctl enable --now rke2-server.service
+* export KUBECONFIG=/etc/rancher/rke2/rke2.yaml
