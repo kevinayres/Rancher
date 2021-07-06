@@ -4,6 +4,7 @@
 * Can't create symlinks into /usr/
 * Best just to add it to the root user's path (along with /opt/rke2/bin for the uninstall and kill scripts):
 ----
+echo "export KUBECONFIG=/etc/rancher/rke2/rke2.yaml" >> ~/.bashrc 
 echo "PATH=${PATH}:/opt/rke2/bin:/var/lib/rancher/rke2/bin/" >> ~/.bashrc && source  ~/.bashrc
 ----
 
@@ -45,8 +46,9 @@ node-label:
   - "something=amazing"
 ----
 * Not sure if some parameters are required to be lists, such as tls-san (but it seems like that's the case)
-* All server installation parameters are at: https://docs.rke2.io/install/install_options/server_config/
-* All agent installation parameters are at: https://docs.rke2.io/install/install_options/agent_config/
+* References for command line options (and config.yaml file equivelents at the end of each line): 
+** All server installation parameters are at: https://docs.rke2.io/install/install_options/server_config/
+** All agent installation parameters are at: https://docs.rke2.io/install/install_options/agent_config/
 
 .Seems like the order of installation is:
 1. Download the script with the appropriate version
