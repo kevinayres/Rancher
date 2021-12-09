@@ -13,6 +13,8 @@
 *** Since tags contain the cluster name and clusterID, each ASG is cluster specific
 ** The user-data script is required, which is specified in the Launch Configuration
 *** Since the user-data script is cluster specific, each Launch Configuration is cluster specific
+* The URL above sets Masters as control-plane and etcd, which means if the ASG-Workers are scaled to zero, the cluster will go into a failed state, due to the lack of coreDNS
+** I prefer to add worker to the Masters, and use taints/tolerations to keep workloads off of them
 
 ## Updated user-data script for SLES, works for Masters and ASG-Workers:
 
@@ -36,7 +38,7 @@ RANCHER_NON_PUBLIC_CA_CHECKSUM=""
 #RANCHER_NON_PUBLIC_CA_CHECKSUM="--ca-checksum <RANCHER_CA_CHECKCSUM>"
 
 ## Set the appropriate role for node
-K8S_ROLES="--etcd --controlplane"
+K8S_ROLES="--etcd --controlplane --worker"
 #K8S_ROLES="--worker"
 
 cat <<EOF > /etc/sysctl.d/90-kubelet.conf
