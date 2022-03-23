@@ -74,4 +74,7 @@ IMPORTANT: When creating secrets through Rancher UI, do not base64 encode the ad
 ** Deploy with `curl -sfL https://get.k3s.io | sh -`
 ** /etc/rancher/k3s/k3s.yml is the kubeconfig file
 
+== Let's Encrypt certs and certbot:
+* To update the SAN for an existing certificate: `/usr/bin/certbot certonly --cert-name rancher-demo.susealliances.com --dns-route53 -d egress.susealliances.com -d samip-demo.susealliances.com
+
  
