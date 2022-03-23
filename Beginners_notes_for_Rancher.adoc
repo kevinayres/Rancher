@@ -76,5 +76,5 @@ IMPORTANT: When creating secrets through Rancher UI, do not base64 encode the ad
 
 == Let's Encrypt certs and certbot:
 * To update the SAN for an existing certificate: `/usr/bin/certbot certonly --cert-name rancher-demo.susealliances.com --dns-route53 -d egress.susealliances.com -d samip-demo.susealliances.com
-
+* https://dev.to/nabbisen/let-s-encrypt-wildcard-certificate-with-certbot-plo
  
