@@ -1,5 +1,9 @@
-sudo zypper -n up
+# end-end breadcrumbs on EC2. 
+# Launched amazon/suse-sles-15-sp3-byos-v20220309-hvm-ssd-x86_64
+# username=ec2-user
 
+sudo SUSEConnect -r key -e email@suse.com
+sudo zypper -n up
 sudo reboot
 
 echo "export KUBECONFIG=/etc/rancher/rke2/rke2.yaml" >> ~/.bashrc
@@ -21,10 +25,9 @@ EOF"
 
 cat /etc/rancher/rke2/config.yaml
 
-sudo bash -c "curl -sfL https://get.rke2.io | INSTALL_RKE2_VERSION="v1.20.6+rke2r1" sh -"
+sudo bash -c "curl -sfL https://get.rke2.io | INSTALL_RKE2_VERSION="v1.20.6+rke2r1" sh -" 
 
-sudo systemctl enable --now rke2-server.service
-
+sudo systemctl enable --now rke2-server.service 
 
 ## After RKE2 is up and running (verify with watch -c kubectl get pods -A):
 
@@ -33,7 +36,6 @@ kubectl create namespace cattle-system## The following commands assumes the publ
 kubectl -n cattle-system create secret tls tls-rancher-ingress \
   --cert=tls.crt \
   --key=tls.key
-
 
 # Note that helm is only available (AFAICT) in PackageHub and software.opensuse.org
 
