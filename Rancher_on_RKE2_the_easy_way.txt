@@ -6,6 +6,26 @@ sudo SUSEConnect -r key -e email@suse.com
 sudo zypper -n up
 sudo reboot
 
+# Need a TLS Certificate. Will leverage the "Let’s Encrypt" tool called certbot. 
+# https://letsencrypt.org/getting-started/
+# https://certbot.eff.org/instructions?ws=nginx&os=leap
+
+sudo zypper addrepo --refresh     https://download.opensuse.org/repositories/system:/snappy/openSUSE_Leap_15.3     snappy
+sudo zypper --gpg-auto-import-keys refresh
+sudo zypper dup --from snappy
+sudo zypper install snapd
+sudo systemctl enable --now snapd
+sudo systemctl enable --now snapd.apparmor
+sudo snap install core; sudo snap refresh core
+# export /snap/bin="$HOME/bin:$PATH" # not needed - sym link below
+sudo ln -s /snap/bin/certbot /usr/bin/certbot
+sudo snap set certbot trust-plugin-with-root=ok
+sudo snap install certbot-dns-route53
+sudo snap refresh
+
+# -------------------------------------------------------------
+
+
 echo "export KUBECONFIG=/etc/rancher/rke2/rke2.yaml" >> ~/.bashrc
 echo "PATH=${PATH}:/opt/rke2/bin:/var/lib/rancher/rke2/bin/" >> ~/.bashrc && source  ~/.bashrc
 
@@ -30,6 +50,12 @@ sudo bash -c "curl -sfL https://get.rke2.io | INSTALL_RKE2_VERSION="v1.20.6+rke2
 sudo systemctl enable --now rke2-server.service 
 
 ## After RKE2 is up and running (verify with watch -c kubectl get pods -A):
+ec2-user@ip-10-0-23-127:~> kubectl get pods -A
+error: error loading config file "/etc/rancher/rke2/rke2.yaml": open /etc/rancher/rke2/rke2.yaml: permission denied
+
+sudo chmod +rw /etc/rancher/rke2/rke2.yaml
+ec2-user@ip-10-0-23-127:~> kubectl get pods -A
+The connection to the server 127.0.0.1:6443 was refused - did you specify the right host or port? 
 
 kubectl create namespace cattle-system## The following commands assumes the public TLS certficate, normally named fullchain.pem, exists in the local directory as tls.crt;   and the associated private key, normally named privkey.pem, exists in the local directory as tls.key.#Examine the TLS cert, if desired:openssl x509 -noout --text -in tls.crt | less
 
